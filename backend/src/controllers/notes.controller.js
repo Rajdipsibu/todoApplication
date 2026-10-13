@@ -49,8 +49,7 @@ export async function getNotes(req,res){
 
 export async function findById(req,res){
   try{
-    const id = req.params.id;
-    const note = await Note.findById({where:{id}});
+    const note = await Note.findById(req.params.id);
     if(!note){
       return res.status(401).json({
         message:"note not found"
@@ -59,6 +58,7 @@ export async function findById(req,res){
     return res.status(200).json({message:"note found success",data:note})
 
   }catch(error){
+    console.log(error.message)
     res.status(500).json({message:"note not found", error: error.message})
   }
 }
@@ -67,8 +67,9 @@ export async function findById(req,res){
 export async function updateNotes(req,res){
   try{
     const {title,content} = req.body;
-    if(!title.trim ||!content){
-      return res.status(400).json({message:""})
+    // console.log(title,content)
+    if(!title || !content){
+      return res.status(400).json({message:"all fields are required"})
     }
     const updates = {};
     if(title!==undefined){
@@ -80,7 +81,7 @@ export async function updateNotes(req,res){
     }
 
     const note = await Note.findByIdAndUpdate(
-      req.params.id,{$set:update},
+      req.params.id,{$set:updates},
       {
       new: true,
       runValidators: true,
